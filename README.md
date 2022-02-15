@@ -1,3 +1,35 @@
+Fork of @KenKenMkIISR to make it work on [Pimoroni's PicoSystem](https://shop.pimoroni.com/products/picosystem)
+
+Building
+
+Please ensure you have the pre-requisites installed and have raspberry pi's official pico SDK in path
+
+```
+sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+git clone https://github.com/raspberrypi/pico-sdk.git ~/pico-sdk
+echo 'export PICO_SDK_PATH="~/pico-sdk"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Then clone this repo and go into it's path:
+
+```
+git clone git@github.com:prashantkamdar/picoinvader.git
+cd picoinvader
+```
+
+Then finally to build it:
+
+``` 
+cmake -DPICO_BOARD=pimoroni_picosystem
+make
+```
+![picosystem](picosystem.jpg)
+
+
+
+# Original README:
+
 # Space Invader for Raspberry Pi Pico
 ラズベリーPi PicoにQVGAの液晶を接続して動作するインベーダーゲームです。  
 小型スピーカーを接続して音声も鳴らせます。  
@@ -12,4 +44,4 @@
 ソースプログラムのビルドにはRP2040に対応したコンパイラの他、CMake、pico-sdkが必要です。  
 SDKが使用できる環境設定をした上で、ダウンロードした拡張子が.c .h .txt .cmakeのファイルを同じフォルダに入れてビルドしてください。  
 ![](picoinvader1.jpg)  
-![](picoinvader_schematic.png)  
+![](picoinvader_schematic.png)
