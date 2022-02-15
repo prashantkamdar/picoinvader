@@ -100,6 +100,20 @@ void LCD_Init()
 	sleep_ms(120);
 
 //************* Start Initial Sequence **********//
+#ifdef PIMORONI_PICOSYSTEM
+	// really st7789, but the commands for updating the screen are the same
+	// TODO: steal more of the init from one of the SDKs?
+
+	LCD_WriteComm(0x35); // TEON
+	LCD_WriteComm(0x44); // STE
+	LCD_WriteData(0x00);
+	LCD_WriteData(0xDC); // 220 (a bit early)
+
+	LCD_WriteComm(0x3A); // COLMOD
+	LCD_WriteData(0x55);
+
+	LCD_WriteComm(0x21); // INVON
+#else
 	LCD_WriteComm(0xCB);
 	LCD_WriteData(0x39);
 	LCD_WriteData(0x2C);
@@ -188,6 +202,7 @@ void LCD_Init()
 	LCD_WriteData(0x2e);
 	LCD_WriteData(0x33);
 	LCD_WriteData(0x0F);
+#endif
 	LCD_WriteComm(0x11);
 	sleep_ms(120);
 	LCD_WriteComm(0x29);

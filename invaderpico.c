@@ -1,12 +1,32 @@
 //スペースインベーダー for PIC32MX250F128B / Color LCD Game System w/bootloader by K.Tanaka
 
-#include <stdlib.h>
+//#include <stdlib.h>
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "hardware/spi.h"
 #include "LCDdriver.h"
 #include "graphlib.h"
 
+
+#ifdef PIMORONI_PICOSYSTEM
+#define GPIO_KEYUP 23
+#define GPIO_KEYLEFT 22
+#define GPIO_KEYRIGHT 21
+#define GPIO_KEYDOWN 20
+#define GPIO_KEYSTART 18
+#define GPIO_KEYFIRE 19
+#define GPIO_KEYMUTE 17
+
+#define KEYUP (1<<GPIO_KEYUP)
+#define KEYLEFT (1<<GPIO_KEYLEFT)
+#define KEYRIGHT (1<<GPIO_KEYRIGHT)
+#define KEYDOWN (1<<GPIO_KEYDOWN)
+#define KEYSTART (1<<GPIO_KEYSTART)
+#define KEYFIRE (1<<GPIO_KEYFIRE)
+#define KEYSMASK (KEYUP|KEYLEFT|KEYRIGHT|KEYDOWN|KEYSTART|KEYFIRE)
+
+#define SOUNDPORT 11
+#else
 
 // 入力ボタンのビット定義
 #define GPIO_KEYUP 0
@@ -24,12 +44,13 @@
 #define KEYSMASK (KEYUP|KEYLEFT|KEYRIGHT|KEYDOWN|KEYSTART|KEYFIRE)
 
 #define SOUNDPORT 6
+#endif
 
 #define clearscreen() LCD_Clear(0)
 
 extern unsigned char bmp_missile1[],bmp_missile2[];
 
-unsigned short keystatus,keystatus2,oldkey; //最新のボタン状態と前回のボタン状態
+unsigned int keystatus,keystatus2,oldkey; //最新のボタン状態と前回のボタン状態
 int ufox; //UFO X座標
 int missilex,missiley; //自機ミサイル座標
 int al_dir,al_x,al_y,al_conter; //インベーダー移動方向、左上座標、移動速度カウンター
@@ -58,15 +79,17 @@ unsigned int * soundarray[]={SOUND1,SOUND2,SOUND3,SOUND4,SOUND5};
 struct {
 	unsigned int *p; //曲配列の演奏中の位置
 	unsigned int *start; //曲配列の開始位置
-	unsigned short count; //発音中の音カウンタ
-	unsigned short loop; //曲配列繰り返しカウンタ
+	unsigned int count; //発音中の音カウンタ
+	unsigned int loop; //曲配列繰り返しカウンタ
 	unsigned char stop; //0:演奏中、1:終了
 } Sound;
 
 #define PWM_WRAP 4000 // 125MHz/31.25KHz
 uint pwm_slice_num;
-
+bool sound_enabled = true;
 void sound_on(uint16_t f){
+	if(!sound_enabled)
+		return;
 	pwm_set_clkdiv_int_frac(pwm_slice_num, f>>4, f&15);
 	pwm_set_enabled(pwm_slice_num, true);
 }
@@ -103,12 +126,20 @@ void sound(int n){
 	while(*p>=0x10000) *p++;
 	Sound.loop=*p;
 }
-void wait60thsec(unsigned short n){
+void wait60thsec(unsigned int n){
+#ifdef LCD_VSYNC
+	if(n == 1) {
+		// sync to 60Hz refresh rate
+		while(gpio_get(LCD_VSYNC));
+		while(!gpio_get(LCD_VSYNC));
+		return;
+	}
+#endif
 	// 60分のn秒ウェイト
 	uint64_t t=to_us_since_boot(get_absolute_time())%16667;
 	sleep_us(16667*n-t);
 }
-void wait60thsecwithsound(unsigned short n){
+void wait60thsecwithsound(unsigned int n){
 	// 60分のn秒ウェイト（効果音継続）
 	while(n>0){
 		wait60thsec(1); //60分の1秒ウェイト
@@ -595,14 +626,13 @@ void main(void){
 	pwm_slice_num = pwm_gpio_to_slice_num(SOUNDPORT);
 	pwm_set_wrap(pwm_slice_num, PWM_WRAP-1);
 	// duty 50%
-	pwm_set_chan_level(pwm_slice_num, PWM_CHAN_A, PWM_WRAP/2);
+	pwm_set_gpio_level(SOUNDPORT, PWM_WRAP/2);
 
 	// 液晶用ポート設定
     // Enable SPI 0 at 40 MHz and connect to GPIOs
-    spi_init(SPICH, 40000 * 1000);
-    gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
-    gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
-    gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
+    spi_init(SPICH, LCD_SPI_FREQ);
+    gpio_set_function(LCD_SCK, GPIO_FUNC_SPI);
+    gpio_set_function(LCD_TX, GPIO_FUNC_SPI);
 
 	gpio_init(LCD_CS);
 	gpio_put(LCD_CS, 1);
@@ -614,9 +644,22 @@ void main(void){
 	gpio_put(LCD_RESET, 1);
 	gpio_set_dir(LCD_RESET, GPIO_OUT);
 
+#ifdef LCD_BACKLIGHT
+	gpio_init(LCD_BACKLIGHT);
+	gpio_set_dir(LCD_BACKLIGHT, GPIO_OUT);
+	gpio_put(LCD_BACKLIGHT, 1);
+#endif
+
+#ifdef LCD_VSYNC
+	gpio_init(LCD_VSYNC);
+	gpio_set_dir(LCD_VSYNC, GPIO_IN);
+#endif
+
 	init_graphic(); //液晶利用開始
+#ifndef PIMORONI_PICOSYSTEM
 	LCD_WriteComm(0x37); //画面中央にするためスクロール設定
 	LCD_WriteData2(272-24);
+#endif
 	highscore=0;
 	while(1){
 		initgame(); //ゲーム初期化

@@ -24,3 +24,5 @@ target_link_libraries(invaderpico pico_stdlib hardware_spi hardware_pwm)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(invaderpico)
+
+pico_set_program_name(invaderpico "Invader for Raspberry Pi Pico")
