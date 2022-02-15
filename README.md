@@ -1,12 +1,15 @@
 # Space Invader for Pimoroni's PicoSystem
 
+### Credits:
+
 Based on [Daft-Freak's](https://github.com/Daft-Freak/picopacman/tree/picosystem) execellent work
+
 Fork of [KenKenMkIISR](https://github.com/KenKenMkIISR/picoinvader) to make it work on [Pimoroni's PicoSystem](https://shop.pimoroni.com/products/picosystem)
 
 
-Download the compiled UF2 from the releases' section
+### Download the compiled UF2 from the releases' section
 
-Building
+### Building & playing
 
 Please ensure you have the pre-requisites installed and have raspberry pi's official pico SDK in path
 
