@@ -4,7 +4,7 @@
 
 Based on [Daft-Freak's](https://github.com/Daft-Freak/picopacman/tree/picosystem) execellent work
 
-Fork of [KenKenMkIISR](https://github.com/KenKenMkIISR/picoinvader) to make it work on [Pimoroni's PicoSystem](https://shop.pimoroni.com/products/picosystem)
+Fork of [KenKenMkIISR](https://github.com/KenKenMkIISR/picoinvader)
 
 
 ### Download the compiled UF2 from the releases' section
