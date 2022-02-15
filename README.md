@@ -1,6 +1,6 @@
 # Space Invader for Pimoroni's PicoSystem
 
-### Credits:
+### Credits
 
 Based on [Daft-Freak's](https://github.com/Daft-Freak/picopacman/tree/picosystem) execellent work
 
@@ -40,7 +40,7 @@ Copy the generated UF2 to your PicoSystem
 
 
 
-## Original README:
+## Original README
 
 ラズベリーPi PicoにQVGAの液晶を接続して動作するインベーダーゲームです。  
 小型スピーカーを接続して音声も鳴らせます。  
