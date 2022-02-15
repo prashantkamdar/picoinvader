@@ -1,4 +1,8 @@
+# Space Invader for Pimoroni's PicoSystem
+
 Fork of @KenKenMkIISR to make it work on [Pimoroni's PicoSystem](https://shop.pimoroni.com/products/picosystem)
+
+Download the compiled UF2 from the releases' section
 
 Building
 
@@ -24,13 +28,15 @@ Then finally to build it:
 cmake -DPICO_BOARD=pimoroni_picosystem
 make
 ```
+
+Copy the generated UF2 to your PicoSystem
+
 ![picosystem](picosystem.jpg)
 
 
 
 # Original README:
 
-# Space Invader for Raspberry Pi Pico
 ラズベリーPi PicoにQVGAの液晶を接続して動作するインベーダーゲームです。  
 小型スピーカーを接続して音声も鳴らせます。  
 とてもシンプルな回路なので、簡単に製作することができます。  
